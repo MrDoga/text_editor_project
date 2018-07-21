@@ -167,8 +167,6 @@ def update_line_numbers(event=None):
    line_number_bar.config(state='disabled')
 
 
-line_number_bar = Text(root,width=4,padx=3,takefocus=0,fg="white",background='#282828',border=0,state='disabled')
-line_number_bar.pack(side='left',fill='y')
 
 
 def show_cursor():
@@ -198,15 +196,11 @@ def toggle_highlight():
    else:
       undo_highlight()
 
-context_text = Text(root,wrap="word")
-context_text.pack(expand='yes',fill='both')
+
 
 def show_popup_menu(event):
    popup_menu.tk_popup(event.x_root,event.y_root)
 
-#for cursor
-cursor_info_bar = Label(context_text,text = 'Line : 1 | Column: 1')
-cursor_info_bar.pack(expand='no',fill=None,side='right',anchor='se')
 
 
 new = PhotoImage(file='new.gif')
@@ -263,15 +257,41 @@ shortcut_bar = Frame(root,height=20)
 shortcut_bar.pack(expand='no',fill='x')
 ###ToolBar###
 icons = ('new','open','copy','paste','cut','redo','undo','save','search')
-for i,icons in enumerate(icons):
-    tool_bar_icons = PhotoImage(file='{}.gif'.format(icons))
-    cmd = eval(icons)
+for i,icon in enumerate(icons):
+    tool_bar_icons = PhotoImage(file='{}.gif'.format(icon))
+    cmd = eval(icon)
     tool_bar = Button(shortcut_bar,image=tool_bar_icons,height=20,width=20,command=cmd)
     tool_bar.image = tool_bar_icons
     tool_bar.pack(side='left')
 
+line_number_bar = Text(root,width=4,padx=3,takefocus=0,fg="white",background='#282828',border=0,state='disabled',wrap='none')
+line_number_bar.pack(side='left',fill='y')
+
+context_text = Text(root,wrap="word")
+context_text.pack(expand='yes',fill='both')
 
 
+scroll_bar = Scrollbar(context_text)
+context_text.configure(yscrollcommand=scroll_bar.set,xscrollcommand=scroll_bar.set)
+scroll_bar.config(command=context_text.yview)
+scroll_bar.config(command=context_text.xview)
+scroll_bar.pack(side='right',fill='y')
+
+
+#for cursor
+cursor_info_bar = Label(context_text,text = 'Line : 1 | Column: 1')
+cursor_info_bar.pack(expand='no',fill=None,side='right',anchor='se')
+
+
+popup_menu = Menu(context_text)
+for i in ('cut','copy','paste','undo','redo'):
+   cmd=eval(i)
+   popup_menu.add_command(Label=i,compounds='left',command=cmd)
+popup_menu.add_seperator()
+popup_menu.add_command(Label='Select All', underline=7,command=selectall)
+context_text.bind('<Button-3>',show_popup_menu)
+
+root.protocol('WM_DELETE_WINDOW',exit)
 root.mainloop()
 
 
